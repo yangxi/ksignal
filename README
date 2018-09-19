@@ -1,0 +1,12 @@
+# Intro
+
+This kernel module exports physical memory addresses of the kernel per-CPU shim probes. Kernel writes signals to the shim probes from that user level observers can read the kernel signals and correlate the kernel signals with user level signals.
+
+The ksignal-linux4.18.patch generates schedule, wakeup, softirq, pagefault, systemcall, tcp recv, tcp xmit signals.
+Make sure you turn on this flag "CONFIG_DEVMEM=y", because you need to mmap the kernel memory space to the user space via "/dev/mem". This patch is a hack, just for demonstrating the research idea.
+
+# Usage
+
+"make; sudo insmod ksignal.ko;" loads this module. It creates one file "/sys/module/ksignal/parameters/signal_page" that has the physical addresses of the SHIM probes.
+
+"make user" generates "read_signal_page" which demonstrates how to map the probe addresses to user space and read the signals.
