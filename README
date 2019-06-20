@@ -1,12 +1,11 @@
 # Intro
+This kernel module exports physical memory addresses of SHIM kernel signals from where user level profilers can continuously sample kernel signals.
+To generate SHIM signals, patch Linux 4.18 with the ksignal-linux4.18.patch patch in this repo that generates schedule, wakeup, softirq, pagefault, systemcall, tcp recv, tcp xmit signals.
 
-This Linux kernel module exports physical memory addresses of the kernel per-CPU SHIM probes. Kernel writes signals to the SHIM probes. From the probes, user-level observer is able to read the kernel signals and correlate the kernel signals with other user-level signals.
-
-The ksignal-linux4.18.patch generates schedule, wakeup, softirq, pagefault, systemcall, tcp recv, tcp xmit signals.
+# Usage
 Make sure you turn on this flag "CONFIG_DEVMEM=y" when building the Linux kernel, because you need to mmap the kernel memory space to the user space via "/dev/mem". This patch is a hack, just for demonstrating the research idea.
 
 # Usage
+"make; sudo insmod ksignal.ko;" loads this module. It creates the file "/sys/module/ksignal/parameters/signal_page" that shows physical addresses of the SHIM signals, the file "/sys/module/ksignal/parameters/task_signal" that shows physical addresses of the current running task signals, and the file "/sys/module/ksignal/parameters/flag_signal" that shows physical addresses of the Elfen nanonap addresses.
 
-"make; sudo insmod ksignal.ko;" loads this module. It creates one file "/sys/module/ksignal/parameters/signal_page" that has the physical addresses of the SHIM probes.
-
-"make user" generates "read_signal_page" which demonstrates how to map the probe addresses to user space and read the signals.
+"make user" generates "read_signal_page" which demonstrates how to map SHIM signals to user space and read the signals, and "sample_ksignal" that shows how to map current task signals to the suer space and read current tasks running on all CPUs.
